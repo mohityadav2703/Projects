@@ -1,0 +1,29 @@
+package com.app.dto;
+
+import java.util.Date;
+
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.app.entity.CounsellorEntity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class EnquiryDTO {
+
+	private String stuName;
+	private String stuPhno;
+	private String classMode;
+	private String course;
+	private String status;
+	
+}

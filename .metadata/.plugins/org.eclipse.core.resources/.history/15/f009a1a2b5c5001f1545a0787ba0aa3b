@@ -1,0 +1,47 @@
+package com.app.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.CounsellorDTO;
+import com.app.entity.CounsellorEntity;
+import com.app.repo.CounsellorRepository;
+import com.app.service.CounsellorService;
+
+@Service
+public class CounsellorServiceImpl implements CounsellorService {
+
+	@Autowired
+	private CounsellorRepository counsellorRepo;
+	
+	
+	public CounsellorDTO login(CounsellorDTO counsellorDto) {
+		 CounsellorEntity counsellor = counsellorRepo.findByEmail(counsellorDto.getEmail());
+		    if (counsellor != null && counsellor.getPassword().equals(counsellorDto.getPassword())) {
+		        return new CounsellorDTO(counsellor.getName(), counsellor.getEmail(), null, counsellor.getPhNo());
+		    }
+		    return null; // or throw an exception
+	}
+
+	
+	public boolean uniqueEmailCheck(String email) {
+		 
+		 return false;
+
+    }
+
+	
+	public boolean register(CounsellorDTO counsellorDto) {
+		if (uniqueEmailCheck(counsellorDto.getEmail())) {
+	        CounsellorEntity counsellor = new CounsellorEntity();
+	        counsellor.setName(counsellorDto.getName());
+	        counsellor.setEmail(counsellorDto.getEmail());
+	        counsellor.setPassword(counsellorDto.getPassword());
+	        counsellor.setPhNo(counsellorDto.getPhNo());
+	        counsellorRepo.save(counsellor);
+	        return true;
+	    }
+	    return false; // Email already exists
+	}
+
+}

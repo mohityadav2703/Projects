@@ -1,0 +1,44 @@
+package com.app.service.impl;
+
+import java.util.List;
+
+import com.app.dto.DashboardResponseDTO;
+import com.app.dto.EnquiryDTO;
+import com.app.dto.EnquiryFilterDTO;
+import com.app.service.EnquiryService;
+
+public class EnquiryServiceImpl implements EnquiryService {
+	
+	
+
+	@Override
+	public DashboardResponseDTO getDashboardInfo(Integer courseId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean addEnquiry(EnquiryDTO enqDto, Integer counsellorId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<EnquiryDTO> getEnquiries(Integer counsellorId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<EnquiryDTO> getEnquireis(EnquiryFilterDTO enqFilterDto, Integer counsellorId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EnquiryDTO getEnquiryById(Integer enqId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

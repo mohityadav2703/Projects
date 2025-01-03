@@ -1,0 +1,35 @@
+package com.app.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.app.dto.CounsellorDTO;
+import com.app.repo.CounsellorRepository;
+import com.app.service.CounsellorService;
+
+@Service
+public class CounsellorServiceImpl implements CounsellorService {
+
+	@Autowired
+	private CounsellorRepository counsellorRepo;
+	
+	
+	public CounsellorDTO login(CounsellorDTO counsellorDto) {
+		
+		return null;
+	}
+
+	
+	public boolean uniqueEmailCheck(String email) {
+		 
+		 return false;
+
+    }
+
+	
+	public boolean register(CounsellorDTO counsellorDto) {
+		
+		return false;
+	}
+
+}

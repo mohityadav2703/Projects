@@ -1,0 +1,26 @@
+package com.app.service.impl;
+
+import com.app.dto.CounsellorDTO;
+import com.app.service.CounsellorService;
+
+public class CounsellorServiceImpl implements CounsellorService {
+
+	@Override
+	public CounsellorDTO login(CounsellorDTO counsellorDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean uniqueEmailCheck(String email) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean register(CounsellorDTO counsellorDto) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

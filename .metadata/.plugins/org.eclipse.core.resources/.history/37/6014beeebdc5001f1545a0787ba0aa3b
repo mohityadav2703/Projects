@@ -1,0 +1,35 @@
+<html xmlns:th="https://www.thymeleaf.org/">
+
+<head>
+	<title>Register Page</title>
+</head>
+
+<body>
+	
+	<pre>
+			<h3 style="text-align: center;">COUNSELLOR REGISTER PAGE</h3>
+			<form th:action="@{/counsellor/save}" method="post">
+				<label>Name :</label>
+				<input type="text" name="name" required/><br>
+				<label>Email :</label>
+				<input type="text" name="email" required/><br>
+				<label>Password :</label>
+				<input type="text" name="password" required/><br>
+				<label>Phone Number :</label>
+				<input type="text" name="phNo" required/><br>
+    
+				<input type="submit" value="Create">
+			</form>
+		</pre>
+	<div th:if="${succMsg}" style="color: green;">
+		<p th:text="${succMsg}"></p>
+	</div>
+
+	<!-- Display Error Message -->
+	<div th:if="${errMsg}" style="color: red;">
+		<p th:text="${errMsg}"></p>
+	</div>
+	
+</body>
+
+</html>

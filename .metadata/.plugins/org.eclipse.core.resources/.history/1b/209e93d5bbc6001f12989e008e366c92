@@ -1,0 +1,32 @@
+package com.app.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.app.dto.CounsellorDTO;
+import com.app.repo.CounsellorRepository;
+import com.app.service.CounsellorService;
+
+public class CounsellorServiceImpl implements CounsellorService {
+	
+	@Autowired
+	private CounsellorRepository counsellorRepo;
+
+	@Override
+	public CounsellorDTO login(CounsellorDTO counsellorDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean uniqueEmailCheck(String email) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean register(CounsellorDTO counsellorDto) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

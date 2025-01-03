@@ -1,0 +1,25 @@
+package com.app.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.app.dto.EnquiryDTO;
+import com.app.service.EnquiryService;
+
+@Controller
+public class EnquiryController {
+	
+	@Autowired
+	private EnquiryService enqService;
+
+	@GetMapping("/enquiry-page")
+	public String loadEnquaryPage(Model model) {
+		EnquiryDTO enqDto = new EnquiryDTO();
+		model.addAttribute("enquiry", enqDto);
+		
+		return "add-enquiry";
+	}
+	
+}

@@ -1,0 +1,11 @@
+package com.app.service;
+
+import com.app.dto.CounsellorDTO;
+
+public interface CounsellorService {
+	
+	public CounsellorDTO login(CounsellorDTO counsellorDto);
+	public boolean uniqueEmailCheck(String email);
+	public boolean register(CounsellorDTO counsellorDto);
+
+}

@@ -1,0 +1,27 @@
+package com.app.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+
+otation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.app.service.CounsellorService;
+
+@Controller
+@RequestMapping("/counsellor")
+public class CounsellorController {
+
+	@Autowired
+	private CounsellorService counsellorService;
+	
+	@GetMapping("/register")
+	public String showRegister() {
+		return "CounsellorRegister";
+	}
+
+	
+	
+}
