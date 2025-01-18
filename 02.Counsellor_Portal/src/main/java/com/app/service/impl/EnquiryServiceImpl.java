@@ -105,7 +105,6 @@ public class EnquiryServiceImpl implements EnquiryService {
 			BeanUtils.copyProperties(enq, dto);
 			enqsDtoList.add(dto);
 		}
-		
 		return enqsDtoList;
 	}
 

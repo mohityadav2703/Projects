@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <typeInfoHistroy>
-    <typeInfo handle="=02.Counsellor_Portal/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.app.service{CounsellorService.java[CounsellorService" modifiers="513" timestamp="1735450195835"/>
+    <typeInfo handle="=03.UserManagement/C:\/Users\/Mohit Yadav\/.m2\/repository\/org\/springframework\/data\/spring-data-jpa\/3.4.1\/spring-data-jpa-3.4.1.jar=/maven.pomderived=/true=/=/maven.groupId=/org.springframework.data=/=/maven.artifactId=/spring-data-jpa=/=/maven.version=/3.4.1=/=/maven.scope=/compile=/=/maven.pomderived=/true=/&lt;org.springframework.data.jpa.repository(JpaRepository.class[JpaRepository" modifiers="1537" timestamp="1735018280741"/>
 </typeInfoHistroy>
