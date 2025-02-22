@@ -34,7 +34,9 @@ public class CounsellorServiceImpl implements CounsellorService {
 		if (entity == null) {
 			return true;
 		}
-		return false;
+		else {
+			return false;
+		}
 	}
 
 	@Override

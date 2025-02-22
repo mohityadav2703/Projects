@@ -91,9 +91,8 @@ public class UserServiceImpl implements UserService {
 
 		Map<Integer, String> cityMap = new HashMap<>();
 
-		list.forEach(city -> {
-			cityMap.put(city.getCityId(), city.getCityName());
-		});
+		list.forEach(city -> 
+			cityMap.put(city.getCityId(), city.getCityName()));
 
 		return cityMap;
 	}
