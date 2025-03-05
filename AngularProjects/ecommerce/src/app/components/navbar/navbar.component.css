@@ -1,0 +1,21 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #e8a89c;
+  padding: 10px 20px;
+}
+.search-bar {
+  padding: 5px;
+  width: 200px;
+}
+.search-btn, .login-btn {
+  background: #1c3b68;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
+.cart {
+  display: flex;
+  align-items: center;
+}
