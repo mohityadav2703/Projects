@@ -1,0 +1,73 @@
+package in.mk.cart.service.impl;
+
+import java.util.ArrayList;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import in.mk.cart.dto.AddToCartRequest;
+import in.mk.cart.dto.CartResponse;
+import in.mk.cart.entity.Cart;
+import in.mk.cart.entity.CartItem;
+import in.mk.cart.repository.CartRepository;
+import in.mk.cart.service.CartService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class CartServiceImpl implements CartService {
+
+    private final CartRepository cartRepo;
+
+    private String currentUser() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public void addToCart(AddToCartRequest request) {
+
+        Cart cart = cartRepo.findByUsername(currentUser())
+                .orElseGet(() -> cartRepo.save(new Cart(null, currentUser(), new ArrayList<>())));
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getProductId().equals(request.getProductId()))
+                .findFirst()
+                .orElse(null);
+
+        if (item == null) {
+            item = new CartItem(null, request.getProductId(), request.getQuantity(), cart);
+            cart.getItems().add(item);
+        } else {
+            item.setQuantity(item.getQuantity() + request.getQuantity());
+        }
+
+        cartRepo.save(cart);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public CartResponse viewCart() {
+        Cart cart = cartRepo.findByUsername(currentUser())
+                .orElseThrow(() -> new RuntimeException("Cart empty"));
+
+        return new CartResponse(cart.getUsername(), cart.getItems());
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public void removeItem(Long productId) {
+        Cart cart = cartRepo.findByUsername(currentUser()).orElseThrow();
+        cart.getItems().removeIf(i -> i.getProductId().equals(productId));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public void clearCart() {
+        Cart cart = cartRepo.findByUsername(currentUser()).orElseThrow();
+        cart.getItems().clear();
+    }
+}

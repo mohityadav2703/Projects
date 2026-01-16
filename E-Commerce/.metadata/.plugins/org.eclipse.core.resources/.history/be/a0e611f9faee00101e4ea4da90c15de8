@@ -1,0 +1,11 @@
+package in.mk.cart.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import in.mk.cart.entity.Cart;
+
+import java.util.Optional;
+
+public interface CartRepository extends JpaRepository<Cart, Long> {
+    Optional<Cart> findByEmail(String email);
+}

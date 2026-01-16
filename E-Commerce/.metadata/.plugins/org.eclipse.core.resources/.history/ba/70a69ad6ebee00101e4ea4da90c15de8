@@ -1,0 +1,71 @@
+package in.mk.gateway.route;
+
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GatewayRouteConfig {
+
+    @Bean
+    public RouteLocator routes(RouteLocatorBuilder builder) {
+
+        return builder.routes()
+
+                // AUTH SERVICE (PUBLIC)
+                .route("auth-service", r -> r
+                        .path("/auth/**")
+                        .uri("lb://auth-service")
+                )
+
+                // USER + ADMIN SERVICE
+                .route("user-service", r -> r
+                        .path("/user/**", "/admin/**")
+                        .filters(f -> f
+                                .circuitBreaker(c -> c
+                                        .setName("defaultCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback"))
+                                .retry(3)
+                        )
+                        .uri("lb://user-service")
+                )
+
+                // ORDER SERVICE
+                .route("order-service", r -> r
+                        .path("/orders/**")
+                        .filters(f -> f
+                                .retry(3)
+                                .circuitBreaker(c -> c
+                                        .setName("defaultCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback"))
+                        )
+                        .uri("lb://order-service")
+                )
+                
+                .route("product-service", r -> r
+                	    .path("/product/**", "/category/**")
+                	    .filters(f -> f
+                	        .circuitBreaker(c -> c
+                	            .setName("defaultCircuitBreaker")
+                	            .setFallbackUri("forward:/fallback")
+                	        )
+                	    )
+                	    .uri("lb://product-service")
+                	)
+
+                .route("inventory-service", r -> r
+                	    .path("/inventory/**")
+                	    .filters(f -> f
+                	        .circuitBreaker(c -> c
+                	            .setName("defaultCircuitBreaker")
+                	            .setFallbackUri("forward:/fallback")
+                	        )
+                	    )
+                	    .uri("lb://inventory-service")
+                	)
+                
+
+                .build();
+    }
+}

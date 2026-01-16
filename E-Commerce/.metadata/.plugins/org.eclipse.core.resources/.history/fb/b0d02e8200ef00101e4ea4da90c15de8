@@ -1,0 +1,5 @@
+package in.mk.cart.redis;
+
+public class CartRepository {
+
+}

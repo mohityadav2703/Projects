@@ -1,0 +1,5 @@
+package in.mk.cart;
+
+public class AddToCartRequest {
+
+}

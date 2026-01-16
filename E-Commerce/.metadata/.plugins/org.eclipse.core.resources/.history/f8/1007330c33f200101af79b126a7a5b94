@@ -1,0 +1,5 @@
+package in.mk.product.security;
+
+public class JwtUtil {
+
+}

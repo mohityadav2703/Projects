@@ -1,0 +1,62 @@
+package in.mk.cart.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import in.mk.cart.dto.CartItemRequest;
+import in.mk.cart.dto.CartItemResponse;
+import in.mk.cart.feign.InventoryFeignClient;
+import in.mk.cart.repository.CartRepository;
+import in.mk.cart.service.CartService;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class CartServiceImpl implements CartService {
+
+    private final CartRepository repository;
+    private final InventoryFeignClient inventoryClient;
+
+    private String currentUser() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public void add(CartItemRequest request) {
+
+        String email = currentUser();
+
+        inventoryClient.check(request.getProductId());
+        inventoryClient.reserve(request.getProductId(), request.getQuantity());
+
+        repository.addItem(email, request.getProductId(), request.getQuantity());
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public List<CartItemResponse> view() {
+
+        Map<Object, Object> map = repository.getCart(currentUser());
+
+        return map.entrySet().stream()
+                .map(e -> new CartItemResponse(
+                        Long.valueOf(e.getKey().toString()),
+                        Integer.parseInt(e.getValue().toString())
+                ))
+                .toList();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public void remove(Long productId) {
+        repository.removeItem(currentUser(), productId);
+        inventoryClient.release(productId, 1);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public void clear() {
+        repository.clear(currentUser());
+    }
+}

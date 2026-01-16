@@ -1,0 +1,57 @@
+package in.mk.auth.service.impl;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import in.mk.auth.clients.UserClient;
+import in.mk.auth.dtos.LoginRequest;
+import in.mk.auth.dtos.RegisterRequest;
+import in.mk.auth.dtos.UserCreateRequest;
+import in.mk.auth.entity.AuthUser;
+import in.mk.auth.repository.AuthUserRepository;
+import in.mk.auth.security.JwtUtil;
+import in.mk.auth.service.AuthService;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService{
+
+	private final AuthUserRepository repository;
+	private final JwtUtil jwtUtil;
+	private final PasswordEncoder encoder;
+	private final UserClient userClient;
+	
+	
+	@Override
+	public void register(RegisterRequest request) {
+		AuthUser user = new AuthUser();
+		user.setUsername(request.getUsername());
+		user.setPassword(encoder.encode(request.getPassword()));
+		user.setEmail(request.getEmail());
+		user.setRole("ROLE_"+request.getRole().toUpperCase());
+		repository.save(user);
+		
+		//sync to user service
+		UserCreateRequest dto = new UserCreateRequest();
+		dto.setUsername(request.getUsername());
+		dto.setEmail(request.getEmail());
+		dto.setPassword(request.getPassword());
+		dto.setRole(request.getRole().toUpperCase());
+		userClient.createUser(dto);
+		
+	}
+	
+	@Override
+	public String login(LoginRequest request) {
+		AuthUser user = repository.findByEmail(request.getEmail()).orElseThrow(()-> new RuntimeException("Invalid Credentials"));
+		
+		if(!encoder.matches(request.getPassword(), user.getPassword())) {
+			throw new RuntimeException("Invalid Credentials");
+		}
+		
+		return jwtUtil.generateToken(user.getEmail(), user.getRole());
+	}
+
+
+}

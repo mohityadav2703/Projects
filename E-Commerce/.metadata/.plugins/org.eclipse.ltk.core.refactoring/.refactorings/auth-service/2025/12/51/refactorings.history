@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move source folder &apos;resources&apos; to &apos;auth-service&apos;&#x0D;&#x0A;- Original project: &apos;auth-service&apos;&#x0D;&#x0A;- Destination element: &apos;auth-service&apos;&#x0D;&#x0A;- Original element: &apos;auth-service/src/main/resources&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move source folder" destination="=auth-service" element1="/src\/main\/resources" flags="6" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveRoots" roots="1" stamp="1766118394101" version="1.0"/>
+</session>

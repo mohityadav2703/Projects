@@ -1,0 +1,83 @@
+package in.mk.product.service.impl;
+
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
+import in.mk.product.dto.ProductRequest;
+import in.mk.product.dto.ProductResponse;
+import in.mk.product.entity.Product;
+import in.mk.product.entity.ProductCategory;
+import in.mk.product.kafka.ProductEventProducer;
+import in.mk.product.repository.ProductCategoryRepository;
+import in.mk.product.repository.ProductRepository;
+import in.mk.product.service.ProductService;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ProductServiceImpl implements ProductService {
+
+    private final ProductRepository productRepo;
+    private final ProductCategoryRepository categoryRepo;
+    private final ProductEventProducer eventProducer;
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public ProductResponse create(ProductRequest request) {
+
+    	ProductCategory category = categoryRepo.findByName(request.getCategory())
+    	        .orElseGet(() -> {
+    	            ProductCategory cat = new ProductCategory();
+    	            cat.setName(request.getCategory());
+    	            return categoryRepo.save(cat);
+    	        });
+
+
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setTitle(request.getTitle());
+        product.setUnitPrice(request.getUnitPrice());
+        product.setImgUrl(request.getImgUrl());
+        product.setUnitInStock(request.getUnitInStock());
+        product.setActive("Y");
+        product.setCategory(category);
+
+        productRepo.save(product);
+        eventProducer.productCreated(product.getName());
+
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getUnitPrice(),
+                category.getName()
+        );
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public List<ProductResponse> getAll() {
+        return productRepo.findAll().stream()
+                .map(p -> new ProductResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getUnitPrice(),
+                        p.getCategory().getName()))
+                .toList();
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public List<ProductResponse> search(String keyword) {
+        return productRepo.findByNameContainingIgnoreCase(keyword)
+                .stream()
+                .map(p -> new ProductResponse(
+                        p.getId(),
+                        p.getName(),
+                        p.getUnitPrice(),
+                        p.getCategory().getName()))
+                .toList();
+    }
+}

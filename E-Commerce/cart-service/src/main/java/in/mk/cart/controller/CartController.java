@@ -1,0 +1,44 @@
+package in.mk.cart.controller;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import in.mk.cart.dto.CartItemRequest;
+import in.mk.cart.dto.CartItemResponse;
+import in.mk.cart.service.CartService;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/cart")
+@RequiredArgsConstructor
+public class CartController {
+
+    private final CartService service;
+
+    @PostMapping("/add")
+    public void add(@RequestBody CartItemRequest request) {
+        service.add(request);
+    }
+
+    @GetMapping("/view")
+    public List<CartItemResponse> view() {
+        return service.view();
+    }
+
+    @DeleteMapping("/remove/{productId}")
+    public void remove(@PathVariable("productId") Long productId) {
+        service.remove(productId);
+    }
+
+    @DeleteMapping("/clear")
+    public void clear() {
+        service.clear();
+    }
+}

@@ -1,0 +1,5 @@
+package in.mk.product.controller;
+
+public class CategoryController {
+
+}

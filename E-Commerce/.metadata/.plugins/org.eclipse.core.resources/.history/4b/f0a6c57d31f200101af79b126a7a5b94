@@ -1,0 +1,5 @@
+package in.mk.product.repository;
+
+public interface ProductRepository {
+
+}

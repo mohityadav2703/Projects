@@ -1,0 +1,5 @@
+package in.mk.product.service;
+
+public interface ProductService {
+
+}

@@ -1,0 +1,14 @@
+package in.mk.cart.dto;
+
+import java.util.List;
+
+import in.mk.cart.entity.CartItem;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class CartResponse {
+	private String user;
+	private List<CartItem> items;
+}
