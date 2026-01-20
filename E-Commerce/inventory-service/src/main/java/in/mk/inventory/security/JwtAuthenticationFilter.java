@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String token = header.substring(7);
 
-            Claims claims = Jwts.parser()
+            @SuppressWarnings("deprecation")
+			Claims claims = Jwts.parser()
                     .setSigningKey(secret.getBytes())
                     .parseClaimsJws(token)
                     .getBody();

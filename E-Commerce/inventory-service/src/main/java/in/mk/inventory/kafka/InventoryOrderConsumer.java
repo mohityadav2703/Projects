@@ -5,6 +5,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import com.common.OrderEvent;
+import com.common.OrderEventType;
 
 import in.mk.inventory.entity.Inventory;
 import in.mk.inventory.repository.InventoryRepository;
@@ -14,56 +15,49 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InventoryOrderConsumer {
 
-    private final InventoryRepository repository;
-    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+    private final InventoryRepository repo;
+    private final KafkaTemplate<String, OrderEvent> kafka;
 
-    @KafkaListener(
-        topics = "order-events",
-        groupId = "inventory-group",
-        containerFactory = "kafkaListenerContainerFactory"
-    )
+    @KafkaListener(topics = "order-events", groupId = "inventory-group")
     public void consume(OrderEvent event) {
 
-        if ("ORDER_CREATED".equals(event.getStatus())) {
-            reserve(event);
-        }
+        switch (event.getType()) {
 
-        if ("ORDER_RETURN_REQUESTED".equals(event.getStatus())) {
-            restore(event);
+            case ORDER_CREATED -> reserve(event);
+            case ORDER_CANCELLED, ORDER_RETURNED -> restore(event);
+            default -> { }
         }
     }
 
     private void reserve(OrderEvent event) {
 
-        Inventory inv = repository.findByProductId(event.getProductId()).orElseThrow();
+        Inventory inv = repo.findByProductId(event.getProductId()).orElseThrow();
+        inv.setQuantity(inv.getQuantity() - event.getQuantity());
+        repo.save(inv);
 
-        if (inv.getQuantity() >= event.getQuantity()) {
-            inv.setQuantity(inv.getQuantity() - event.getQuantity());
-            repository.save(inv);
-
-            kafkaTemplate.send("inventory-events",
-                    new OrderEvent(
-                            event.getOrderId(),
-                            event.getProductId(),
-                            event.getQuantity(),
-                            "INVENTORY_RESERVED"
-                    ));
-        }
-    }
-
-    private void restore(OrderEvent event) {
-
-        Inventory inv = repository.findByProductId(event.getProductId()).orElseThrow();
-
-        inv.setQuantity(inv.getQuantity() + event.getQuantity());
-        repository.save(inv);
-
-        kafkaTemplate.send("inventory-events",
+        kafka.send("inventory-events",
                 new OrderEvent(
                         event.getOrderId(),
                         event.getProductId(),
                         event.getQuantity(),
-                        "INVENTORY_RESTORED"
+                        event.getUserEmail(),
+                        OrderEventType.INVENTORY_RESERVED
+                ));
+    }
+
+    private void restore(OrderEvent event) {
+
+        Inventory inv = repo.findByProductId(event.getProductId()).orElseThrow();
+        inv.setQuantity(inv.getQuantity() + event.getQuantity());
+        repo.save(inv);
+
+        kafka.send("inventory-events",
+                new OrderEvent(
+                        event.getOrderId(),
+                        event.getProductId(),
+                        event.getQuantity(),
+                        event.getUserEmail(),
+                        OrderEventType.INVENTORY_RESTORED
                 ));
     }
 }

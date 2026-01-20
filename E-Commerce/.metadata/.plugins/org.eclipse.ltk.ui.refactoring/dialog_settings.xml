@@ -2,9 +2,11 @@
 <section name="Workbench">
 	<section name="RefactoringWizard.preview">
 		<item key="width" value="790"/>
-		<item key="height" value="270"/>
+		<item key="height" value="260"/>
 	</section>
 	<section name="org.eclipse.ltk.ui.refactoring.settings">
 		<item key="deleteSubPackages" value="true"/>
+		<item key="moveWizard.updateQualifiedNames" value="false"/>
+		<item key="patterns" value="*"/>
 	</section>
 </section>

@@ -1,0 +1,14 @@
+server:
+  port: 8086
+  
+spring:
+  application:
+    name: order-service
+       
+  config:
+    import: optional:configserver:http://localhost:8888/
+    
+springdoc:
+  swagger-ui:
+    config-url: /auth-service/v3/api-docs/swagger-config
+    url: /auth-service/v3/api-docs

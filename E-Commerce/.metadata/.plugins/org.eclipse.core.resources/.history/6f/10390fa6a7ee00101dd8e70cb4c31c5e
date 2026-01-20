@@ -1,5 +1,0 @@
-package in.mk.inventory.kafka;
-
-public class ProductEventListener {
-
-}

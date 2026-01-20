@@ -1,5 +1,0 @@
-package in.mk.cart.feign;
-
-public interface ProductClient {
-
-}

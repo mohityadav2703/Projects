@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import in.mk.cart.dto.CartItemRequest;
 import in.mk.cart.dto.CartItemResponse;
-import in.mk.cart.feign.InventoryFeignClient;
 import in.mk.cart.repository.CartRepository;
 import in.mk.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -19,23 +18,22 @@ import lombok.RequiredArgsConstructor;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository repository;
-    private final InventoryFeignClient inventoryClient;
 
     private String currentUser() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    @Override
     @PreAuthorize("hasRole('USER')")
     public void add(CartItemRequest request) {
-
-        String email = currentUser();
-
-        inventoryClient.check(request.getProductId());
-        inventoryClient.reserve(request.getProductId(), request.getQuantity());
-
-        repository.addItem(email, request.getProductId(), request.getQuantity());
+        repository.addItem(
+            currentUser(),
+            request.getProductId(),
+            request.getQuantity()
+        );
     }
 
+    @Override
     @PreAuthorize("hasRole('USER')")
     public List<CartItemResponse> view() {
 
@@ -49,14 +47,14 @@ public class CartServiceImpl implements CartService {
                 .toList();
     }
 
-    @PreAuthorize("hasRole('USER')")
-    public void remove(Long productId) {
-        repository.removeItem(currentUser(), productId);
-        inventoryClient.release(productId, 1);
-    }
-
+    @Override
     @PreAuthorize("hasRole('USER')")
     public void clear() {
         repository.clear(currentUser());
+    }
+    
+    @Override
+    public void clearByUser(String userEmail) {
+    	repository.clear(userEmail);
     }
 }

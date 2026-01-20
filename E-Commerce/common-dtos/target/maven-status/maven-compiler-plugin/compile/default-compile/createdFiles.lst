@@ -2,3 +2,4 @@ com\common\CustomerDto.class
 com\common\OrderEvent.class
 com\common\ProductEvent.class
 com\common\ResetPwdDto.class
+com\common\OrderEventType.class

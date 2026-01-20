@@ -2,13 +2,8 @@ package in.mk.cart.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import in.mk.cart.dto.CartItemRequest;
 import in.mk.cart.dto.CartItemResponse;
@@ -22,22 +17,26 @@ public class CartController {
 
     private final CartService service;
 
+    // ---------------- ADD TO CART ----------------
+
     @PostMapping("/add")
+    @PreAuthorize("hasRole('USER')")
     public void add(@RequestBody CartItemRequest request) {
         service.add(request);
     }
 
+    // ---------------- VIEW CART ----------------
+
     @GetMapping("/view")
+    @PreAuthorize("hasRole('USER')")
     public List<CartItemResponse> view() {
         return service.view();
     }
 
-    @DeleteMapping("/remove/{productId}")
-    public void remove(@PathVariable("productId") Long productId) {
-        service.remove(productId);
-    }
+    // ---------------- CLEAR CART ----------------
 
     @DeleteMapping("/clear")
+    @PreAuthorize("hasRole('USER')")
     public void clear() {
         service.clear();
     }

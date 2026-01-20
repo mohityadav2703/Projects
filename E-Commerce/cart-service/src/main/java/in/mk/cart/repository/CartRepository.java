@@ -25,10 +25,6 @@ public class CartRepository {
         return redisTemplate.opsForHash().entries(key(email));
     }
 
-    public void removeItem(String email, Long productId) {
-        redisTemplate.opsForHash().delete(key(email), productId.toString());
-    }
-
     public void clear(String email) {
         redisTemplate.delete(key(email));
     }

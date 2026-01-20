@@ -12,10 +12,7 @@ public class OrderEvent {
     private Long orderId;
     private Long productId;
     private Integer quantity;
-    private String status;
-    // ORDER_CREATED
-    // ORDER_CANCELLED
-    // INVENTORY_RESERVED
-    // INVENTORY_FAILED
-    // INVENTORY_RELEASED
+    private String userEmail;
+    private OrderEventType type;
+
 }

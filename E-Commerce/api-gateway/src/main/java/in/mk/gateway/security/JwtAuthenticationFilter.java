@@ -20,7 +20,30 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private static final List<String> PUBLIC_URLS = List.of(
             "/auth/login",
             "/auth/register",
-            "/actuator"
+            "/actuator",
+           
+            // Swagger common
+            "/swagger-ui/",
+            "/v3/api-docs",
+
+            // Swagger via Gateway (service-prefixed)
+            "/auth-service/swagger-ui/",
+            "/auth-service/v3/api-docs",
+
+            "/user-service/swagger-ui/",
+            "/user-service/v3/api-docs",
+
+            "/order-service/swagger-ui/",
+            "/order-service/v3/api-docs",
+
+            "/product-service/swagger-ui/",
+            "/product-service/v3/api-docs",
+
+            "/inventory-service/swagger-ui/",
+            "/inventory-service/v3/api-docs",
+
+            "/cart-service/swagger-ui/",
+            "/cart-service/v3/api-docs"
     );
 
     @Autowired
@@ -34,6 +57,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (PUBLIC_URLS.stream().anyMatch(path::startsWith)) {
             return chain.filter(exchange);
         }
+        
 
         String authHeader = exchange.getRequest()
                 .getHeaders()

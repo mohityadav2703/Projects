@@ -1,5 +1,0 @@
-package in.mk.cart.service;
-
-public interface CartService {
-
-}
