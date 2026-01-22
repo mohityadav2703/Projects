@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository repository;
-
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void addOrUpdateStock(InventoryRequest request) {
@@ -27,7 +26,7 @@ public class InventoryServiceImpl implements InventoryService {
         inv.setQuantity(inv.getQuantity() + request.getQuantity());
         repository.save(inv);
     }
-
+    
     @Override
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public InventoryResponse checkStock(Long productId) {

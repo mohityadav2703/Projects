@@ -4,8 +4,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.common.OrderEvent;
-import com.common.OrderEventType;
+import com.common.order.OrderEvent;
+import com.common.order.OrderEventType;
 
 import in.mk.inventory.entity.Inventory;
 import in.mk.inventory.repository.InventoryRepository;
@@ -31,33 +31,41 @@ public class InventoryOrderConsumer {
 
     private void reserve(OrderEvent event) {
 
-        Inventory inv = repo.findByProductId(event.getProductId()).orElseThrow();
+        Inventory inv = repo.findByProductId(event.getProductId())
+                .orElseThrow();
+
         inv.setQuantity(inv.getQuantity() - event.getQuantity());
         repo.save(inv);
 
-        kafka.send("inventory-events",
-                new OrderEvent(
-                        event.getOrderId(),
-                        event.getProductId(),
-                        event.getQuantity(),
-                        event.getUserEmail(),
-                        OrderEventType.INVENTORY_RESERVED
-                ));
+        kafka.send(
+            "inventory-events",
+            OrderEvent.builder()
+                .orderId(event.getOrderId())
+                .productId(event.getProductId())
+                .quantity(event.getQuantity())
+                .userEmail(event.getUserEmail())
+                .type(OrderEventType.INVENTORY_RESERVED)
+                .build()
+        );
     }
 
     private void restore(OrderEvent event) {
 
-        Inventory inv = repo.findByProductId(event.getProductId()).orElseThrow();
+        Inventory inv = repo.findByProductId(event.getProductId())
+                .orElseThrow();
+
         inv.setQuantity(inv.getQuantity() + event.getQuantity());
         repo.save(inv);
 
-        kafka.send("inventory-events",
-                new OrderEvent(
-                        event.getOrderId(),
-                        event.getProductId(),
-                        event.getQuantity(),
-                        event.getUserEmail(),
-                        OrderEventType.INVENTORY_RESTORED
-                ));
+        kafka.send(
+            "inventory-events",
+            OrderEvent.builder()
+                .orderId(event.getOrderId())
+                .productId(event.getProductId())
+                .quantity(event.getQuantity())
+                .userEmail(event.getUserEmail())
+                .type(OrderEventType.INVENTORY_RESTORED)
+                .build()
+        );
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
-import com.common.OrderEvent;
+import com.common.order.OrderEvent;
 
 @Configuration
 public class KafkaConsumerConfig {

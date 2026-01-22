@@ -25,6 +25,25 @@ public class CartRepository {
         return redisTemplate.opsForHash().entries(key(email));
     }
 
+    public void removeItem(String email, Long productId, int qty) {
+
+        String cartKey = key(email);
+        Object currentQtyObj =
+                redisTemplate.opsForHash().get(cartKey, productId.toString());
+
+        if (currentQtyObj == null) return;
+
+        int currentQty = Integer.parseInt(currentQtyObj.toString());
+        int remaining = currentQty - qty;
+
+        if (remaining <= 0) {
+            redisTemplate.opsForHash().delete(cartKey, productId.toString());
+        } else {
+            redisTemplate.opsForHash()
+                    .put(cartKey, productId.toString(), remaining);
+        }
+    }
+    
     public void clear(String email) {
         redisTemplate.delete(key(email));
     }

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import com.common.ProductEvent;
+import com.common.product.ProductEvent;
 
 import in.mk.inventory.entity.Inventory;
 import in.mk.inventory.repository.InventoryRepository;

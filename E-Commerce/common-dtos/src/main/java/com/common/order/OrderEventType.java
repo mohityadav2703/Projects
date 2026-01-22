@@ -1,0 +1,13 @@
+package com.common.order;
+
+public enum OrderEventType {
+    ORDER_CREATED,
+    ORDER_CONFIRMED,
+    ORDER_DELIVERED,
+    ORDER_CANCELLED,
+    ORDER_RETURN_REQUESTED,
+    ORDER_RETURNED,
+
+    INVENTORY_RESERVED,
+    INVENTORY_RESTORED
+}

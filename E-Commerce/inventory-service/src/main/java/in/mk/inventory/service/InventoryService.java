@@ -12,4 +12,5 @@ public interface InventoryService {
 	void reserveStock(Long productId, int qty);
 
 	void releaseStock(Long productId, int qty);
+	
 }

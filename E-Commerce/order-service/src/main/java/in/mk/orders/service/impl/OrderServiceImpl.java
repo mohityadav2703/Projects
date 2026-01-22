@@ -1,15 +1,15 @@
 package in.mk.orders.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.common.OrderEvent;
-import com.common.OrderEventType;
+import com.common.order.*;
 
+import in.mk.orders.dto.CartCheckoutItemDto;
 import in.mk.orders.dto.CartItemDto;
 import in.mk.orders.entity.Order;
 import in.mk.orders.entity.OrderStatus;
@@ -29,7 +29,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderEventProducer producer;
     private final CartClient cartClient;
 
-    // ---------------- UTIL ----------------
+    // --------------------------------------------------
+    // UTIL
+    // --------------------------------------------------
 
     private String currentUser() {
         return SecurityContextHolder.getContext()
@@ -37,71 +39,127 @@ public class OrderServiceImpl implements OrderService {
                 .getName();
     }
 
-    // ---------------- SINGLE ORDER ----------------
+    // --------------------------------------------------
+    // SINGLE PRODUCT ORDER
+    // --------------------------------------------------
 
     @Override
     @Transactional
     public Order placeOrder(Long productId, Integer qty) {
 
-        Order order = repo.save(
-                Order.builder()
-                        .userEmail(currentUser())
-                        .productId(productId)
-                        .quantity(qty)
-                        .status(OrderStatus.CREATED)
-                        .build()
-        );
+        Order order = createOrder(productId, qty);
 
-        producer.send(new OrderEvent(
-                order.getId(),
-                productId,
-                qty,
-                currentUser(),
-                OrderEventType.ORDER_CREATED
-        ));
+        producer.send(
+            OrderEvent.builder()
+                .orderId(order.getId())
+                .productId(productId)
+                .quantity(qty)
+                .userEmail(currentUser())
+                .type(OrderEventType.ORDER_CREATED)
+                // No context → backward compatible
+                .build()
+        );
 
         return order;
     }
 
-    // ---------------- CART CHECKOUT ----------------
+    // --------------------------------------------------
+    // FULL CART CHECKOUT
+    // --------------------------------------------------
 
     @Override
     @Transactional
     public List<Order> checkout() {
 
-        List<CartItemDto> items = cartClient.myCart();
+        List<CartItemDto> cart = cartClient.myCart();
         List<Order> orders = new ArrayList<>();
 
-        if (items == null || items.isEmpty()) {
+        if (cart == null || cart.isEmpty()) {
             return orders;
         }
 
-        for (CartItemDto item : items) {
+        for (CartItemDto item : cart) {
 
-            Order order = repo.save(
-                    Order.builder()
-                            .userEmail(currentUser())
-                            .productId(item.getProductId())
-                            .quantity(item.getQuantity())
-                            .status(OrderStatus.CREATED)
-                            .build()
+            Order order = createOrder(
+                item.getProductId(),
+                item.getQuantity()
             );
 
             orders.add(order);
 
-            producer.send(new OrderEvent(
-                    order.getId(),
-                    item.getProductId(),
-                    item.getQuantity(),
-                    currentUser(),
-                    OrderEventType.ORDER_CREATED
-            ));
+            producer.send(
+                OrderEvent.builder()
+                    .orderId(order.getId())
+                    .productId(item.getProductId())
+                    .quantity(item.getQuantity())
+                    .userEmail(currentUser())
+                    .type(OrderEventType.ORDER_CREATED)
+                    .context(new OrderContext(CheckoutType.FULL))
+                    .build()
+            );
         }
 
         return orders;
     }
 
-    // ---------------- STATE TRANSITIONS ----------------
+    // --------------------------------------------------
+    // PARTIAL CART CHECKOUT (FIXED)
+    // --------------------------------------------------
+
+    @Override
+    @Transactional
+    public List<Order> checkoutPartial(List<CartCheckoutItemDto> items) {
+
+        if (items == null || items.isEmpty()) {
+            return List.of();
+        }
+
+        // 1️⃣ Fetch cart
+        Map<Long, Integer> cartMap =
+            cartClient.myCart().stream()
+                .collect(Collectors.toMap(
+                    CartItemDto::getProductId,
+                    CartItemDto::getQuantity
+                ));
+
+        List<Order> orders = new ArrayList<>();
+
+        // 2️⃣ Validate + create orders
+        for (CartCheckoutItemDto item : items) {
+
+            Integer available = cartMap.get(item.getProductId());
+
+            if (available == null || available < item.getQuantity()) {
+                throw new IllegalStateException(
+                    "Insufficient quantity for productId=" + item.getProductId()
+                );
+            }
+
+            Order order = createOrder(
+                item.getProductId(),
+                item.getQuantity()
+            );
+
+            orders.add(order);
+
+            producer.send(
+                OrderEvent.builder()
+                    .orderId(order.getId())
+                    .productId(item.getProductId())
+                    .quantity(item.getQuantity())
+                    .userEmail(currentUser())
+                    .type(OrderEventType.ORDER_CREATED)
+                    .context(new OrderContext(CheckoutType.PARTIAL))
+                    .build()
+            );
+        }
+
+        return orders;
+    }
+
+    // --------------------------------------------------
+    // ORDER STATE TRANSITIONS
+    // --------------------------------------------------
 
     @Override
     @Transactional
@@ -109,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = repo.findById(id).orElseThrow();
 
-        // ✅ idempotent protection
+        // idempotent
         if (order.getStatus() == OrderStatus.CONFIRMED) {
             return;
         }
@@ -132,39 +190,64 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void requestReturn(Long id) {
-        transitionById(id, OrderStatus.RETURN_REQUESTED, OrderEventType.ORDER_RETURN_REQUESTED);
+        transitionById(id, OrderStatus.RETURN_REQUESTED,
+                       OrderEventType.ORDER_RETURN_REQUESTED);
     }
 
     @Override
     @Transactional
     public void markReturned(Long id) {
-        transitionById(id, OrderStatus.RETURNED, OrderEventType.ORDER_RETURNED);
+        transitionById(id, OrderStatus.RETURNED,
+                       OrderEventType.ORDER_RETURNED);
     }
 
-    // ---------------- INTERNAL HELPERS ----------------
+    // --------------------------------------------------
+    // INTERNAL HELPERS
+    // --------------------------------------------------
 
-    private void transitionById(Long id, OrderStatus to, OrderEventType type) {
+    private Order createOrder(Long productId, int qty) {
+        return repo.save(
+            Order.builder()
+                .userEmail(currentUser())
+                .productId(productId)
+                .quantity(qty)
+                .status(OrderStatus.CREATED)
+                .build()
+        );
+    }
+
+    private void transitionById(
+            Long id,
+            OrderStatus to,
+            OrderEventType type) {
+
         Order order = repo.findById(id).orElseThrow();
         transition(order, to, type);
     }
 
-    private void transition(Order order, OrderStatus to, OrderEventType eventType) {
+    private void transition(
+            Order order,
+            OrderStatus to,
+            OrderEventType eventType) {
 
         if (!stateMachine.canMove(order.getStatus(), to)) {
             throw new IllegalStateException(
-                    "Invalid transition " + order.getStatus() + " -> " + to
+                "Invalid transition " +
+                order.getStatus() + " -> " + to
             );
         }
 
         order.setStatus(to);
         repo.save(order);
 
-        producer.send(new OrderEvent(
-                order.getId(),
-                order.getProductId(),
-                order.getQuantity(),
-                order.getUserEmail(),
-                eventType
-        ));
+        producer.send(
+            OrderEvent.builder()
+                .orderId(order.getId())
+                .productId(order.getProductId())
+                .quantity(order.getQuantity())
+                .userEmail(order.getUserEmail())
+                .type(eventType)
+                .build()
+        );
     }
 }

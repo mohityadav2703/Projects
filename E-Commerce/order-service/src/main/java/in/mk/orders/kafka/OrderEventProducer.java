@@ -1,9 +1,10 @@
 package in.mk.orders.kafka;
 
-import com.common.OrderEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import com.common.order.OrderEvent;
 
 @Component
 @RequiredArgsConstructor

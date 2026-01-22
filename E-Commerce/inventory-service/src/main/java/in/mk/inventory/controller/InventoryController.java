@@ -19,6 +19,7 @@ public class InventoryController {
         inventoryService.addOrUpdateStock(request);
     }
 
+    
     @GetMapping("/check/{productId}")
     public InventoryResponse check(@PathVariable("productId") Long productId) {
         return inventoryService.checkStock(productId);

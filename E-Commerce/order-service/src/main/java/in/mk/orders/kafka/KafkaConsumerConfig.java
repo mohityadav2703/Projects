@@ -9,7 +9,8 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
-import com.common.OrderEvent;
+
+import com.common.order.OrderEvent;
 
 @Configuration
 public class KafkaConsumerConfig {
